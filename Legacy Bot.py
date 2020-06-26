@@ -848,6 +848,6 @@ async def _test(ctx, num1: int, num2: int, horse_id: int):
 
 
 # -------------------MAIN-------------------------#
-#Hangman = Hangman_Game()
+Hangman = Hangman_Game()
 # Ludo = Ludo_Game(['Legacy'])
 bot.run(TOKEN)
