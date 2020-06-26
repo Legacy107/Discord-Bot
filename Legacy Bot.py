@@ -31,7 +31,7 @@ emoji = {'oo': '<:oo:697102602650779778>', 'clap': '👏', 'face_palm': '🤦‍
          'g': '🇬', 'h': '🇭', 'i': '🇮', 'j': '🇯', 'k': '🇰', 'l': '🇱', 'm': '🇲', 'n': '🇳', 'o': '🇴', 'p': '🇵',
          'q': '🇶', 'r': '🇷', 's': '🇸', 't': '🇹', 'u': '🇺', 'v': '🇻', 'w': '🇼', 'x': '🇽', 'y': '🇾', 'z': '🇿'}
 max_height = 400
-max_msg = 300
+max_msg = 128
 images_dir = '.\\images\\'
 audio_dir = '.\\audio\\'
 ffmpeg_dir = 'C:\\Program Files (x86)\\ffmpeg\\bin\\ffmpeg.exe'
@@ -416,7 +416,7 @@ def save_deleted_msg(author, content):
     file['deleted_msg'] = deleted_msg
     file.close()
 
-
+    
 def resize(image_name):
     image = Image.open('%s%s' % (images_dir, image_name))
     width = int(float(image.size[0]) * (max_height / float(image.size[1])))
@@ -452,8 +452,27 @@ async def on_message(message):
 
 @bot.event
 async def on_message_delete(message):
+    if message.author == bot.user:
+        return
     save_deleted_msg(message.author.name, message.content)
     print(message.author.name, message.content)
+
+
+@bot.command(name='wipe', help='Wipe all message data')
+@commands.check(is_Legacy)
+async def _wipe_msg_data(ctx):
+    history.clear()
+    deleted_msg.clear()
+    file = shelve.open('.\\data', flag='r')
+    image_data = file['image']
+    file.close()
+    os.remove('.\\data.dat')
+    os.remove('.\\data.bak')
+    os.remove('.\\data.dir')
+    file = shelve.open('.\\data', flag='n')
+    file.setdefault('image', image_data)
+    file.close()
+    await ctx.send('Successfully wiped out msg data')
 
 
 @bot.command(name='list', help='Show message history. Syntax: >list <number of msg>')
