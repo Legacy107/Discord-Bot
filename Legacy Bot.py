@@ -9,10 +9,12 @@ import discord
 from PIL import Image, ImageDraw, ImageFont
 from PyDictionary import PyDictionary
 from discord.ext import tasks, commands
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from random_word import RandomWords
 
-load_dotenv('.\\User data.env')
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='>')
@@ -838,6 +840,6 @@ async def _test(ctx, num1: int, num2: int, horse_id: int):
 
 
 # -------------------MAIN-------------------------#
-Hangman = Hangman_Game()
+#Hangman = Hangman_Game()
 # Ludo = Ludo_Game(['Legacy'])
 bot.run(TOKEN)
