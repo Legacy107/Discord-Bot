@@ -12,13 +12,22 @@ from discord.ext import tasks, commands
 from dotenv import load_dotenv, find_dotenv
 from random_word import RandomWords
 
+# Get token
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 bot = commands.Bot(command_prefix='>')
-data = shelve.open('.\\data')
+
+# Dir
+images_dir = os.path.join('.','images','')
+audio_dir = os.path.join('.','audio','')
+ffmpeg_dir = os.path.join('C:','Program Files (x86)','ffmpeg','bin','ffmpeg.exe')
+font_dir = os.path.join('.','font','VNF-Comic Sans.ttf')
+data_dir = os.path.join('.','data')
+
+data = shelve.open(data_dir)
 data.setdefault('msg_history', [])
 data.setdefault('deleted_msg', [])
 data.setdefault('image', {})
@@ -34,9 +43,6 @@ emoji = {'oo': '<:oo:697102602650779778>', 'clap': '👏', 'face_palm': '🤦‍
          'q': '🇶', 'r': '🇷', 's': '🇸', 't': '🇹', 'u': '🇺', 'v': '🇻', 'w': '🇼', 'x': '🇽', 'y': '🇾', 'z': '🇿'}
 max_height = 400
 max_msg = 128
-images_dir = '.\\images\\'
-audio_dir = '.\\audio\\'
-ffmpeg_dir = 'C:\\Program Files (x86)\\ffmpeg\\bin\\ffmpeg.exe'
 English_dictionary = PyDictionary()
 random_word = RandomWords()
 RE_has_digit = re.compile('\d|\'')
@@ -265,13 +271,15 @@ class Ludo_Game:
             [[481, 482], [517, 482], [481, 518], [517, 518]],
             [[481, 17], [517, 17], [481, 53], [517, 53]]]
     color = ['red', 'green', 'yellow', 'blue']
-    font = ImageFont.truetype('.\\font\\comic.ttf', 22)
+    font = ImageFont.truetype(font_dir, 22)
     thumbnail = 'https://cdn.discordapp.com/attachments/706438294245736469/715542480581558392/images.png'
     winning_image = 'https://cdn.discordapp.com/attachments/706438294245736469/716574811320746064/45e.jpg'
     log_go_out = '{player}\'s horse{id} entered the race'
     log_move_ahead = '{player}\'s horse{id} moved {steps} step forward'
     log_kick = ' and kicked {kicked_player}\'s horse'
     invalid_msg = 'Invalid move'
+    main_image = os.path.join('.','ludo','ludo.jpg')
+    temp_image = os.path.join('.','ludo','ludo_tmp.jpg')
 
     def __init__(self, players):
         self.status = False
@@ -286,14 +294,14 @@ class Ludo_Game:
 
     def prepare_image(self):
         off_set = 5
-        file = Image.open('.\\ludo\\ludo.jpg')
+        file = Image.open(self.main_image)
         draw = ImageDraw.Draw(file)
         for player in self.players:
             for id, horse in enumerate(player.horses):
                 draw.ellipse((horse.x + off_set, horse.y + off_set, horse.x + 36 - off_set, horse.y + 36 - off_set),
                              fill=player.color, outline='gray', width=2)
                 draw.text((horse.x + 13, horse.y + 1), text=str(id + 1), fill='white', font=self.font)
-        file.save('.\\ludo\\ludo_tmp.jpg')
+        file.save(self.temp_image)
         file.close()
 
     def show(self):
@@ -301,7 +309,7 @@ class Ludo_Game:
         embed = discord.Embed(title=self.log, color=discord.Color.blurple())
         embed.description = 'It\'s **%s\'s** turn. Pls `>ld roll` the dice' % self.players[self.turn].name
         embed.set_author(name='Ludo Game', icon_url=self.thumbnail)
-        file = discord.File('.\\ludo\\ludo_tmp.jpg', filename="ludo_tmp.jpg")
+        file = discord.File(self.temp_image, filename="ludo_tmp.jpg")
         embed.set_image(url="attachment://ludo_tmp.jpg")
         return file, embed
 
@@ -402,7 +410,7 @@ class Ludo_Game:
 
 
 def save_msg_history(author, content):
-    file = shelve.open('.\\data')
+    file = shelve.open(data_dir)
     if len(history) > max_msg:
         del history[0]
     history.append([author, content])
@@ -411,7 +419,7 @@ def save_msg_history(author, content):
 
 
 def save_deleted_msg(author, content):
-    file = shelve.open('.\\data')
+    file = shelve.open(data_dir)
     if len(deleted_msg) > max_msg:
         del deleted_msg[0]
     deleted_msg.append([author, content])
@@ -465,13 +473,13 @@ async def on_message_delete(message):
 async def _wipe_msg_data(ctx):
     history.clear()
     deleted_msg.clear()
-    file = shelve.open('.\\data', flag='r')
+    file = shelve.open(data_dir, flag='r')
     image_data = file['image']
     file.close()
-    os.remove('.\\data.dat')
-    os.remove('.\\data.bak')
-    os.remove('.\\data.dir')
-    file = shelve.open('.\\data', flag='n')
+    os.remove(os.path.join('.','data.dat'))
+    os.remove(os.path.join('.','data.bak'))
+    os.remove(os.path.join('.','data.dir'))
+    file = shelve.open(data_dir, flag='n')
     file.setdefault('image', image_data)
     file.close()
     await ctx.send('Successfully wiped out msg data')
@@ -509,7 +517,7 @@ async def _savepic(ctx, name: str):
     if len(attachment) > 1:
         await ctx.send('Attach 1 image only')
         return
-    file = shelve.open('.\\data')
+    file = shelve.open(data_dir)
     if name in file['image'].keys():
         await ctx.send('Invalid name')
         return
@@ -528,7 +536,7 @@ async def _savepic(ctx, name: str):
 @bot.command(name='delpic', help='Delete a pic saved with >savepic. Syntax: >delpic <name>')
 async def _delpic(ctx, name: str):
     name = name.lower()
-    file = shelve.open('.\\data')
+    file = shelve.open(data_dir)
     all_images = file['image']
     if name not in all_images.keys():
         await ctx.send('Pic not found')
@@ -546,7 +554,7 @@ async def _delpic(ctx, name: str):
 @bot.command(name='pic', help='Send a pic saved with >savepic. Syntax: >pic <name>')
 async def _pic(ctx, name: str):
     name = name.lower()
-    file = shelve.open('.\\data')
+    file = shelve.open(data_dir)
     if name not in file['image'].keys():
         await ctx.send('Pic not found')
         return
@@ -559,7 +567,7 @@ async def _pic(ctx, name: str):
 @bot.command(name='hhh', help=u'Huấn Rô Sì')
 async def _hhh(ctx, *, arg):
     image_name = 'hhh.png'
-    font = ImageFont.truetype('.\\font\\VNF-Comic Sans.ttf', 18)
+    font = ImageFont.truetype(font_dir, 18)
     header = u'Này {users}! Anh Huấn tặng chú 1 câu'
     users = ctx.message.mentions
     names = [user.name for user in users]
