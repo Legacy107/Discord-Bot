@@ -1,4 +1,0 @@
-discord.py
-Pillow
-PyDictionary
-random-word
