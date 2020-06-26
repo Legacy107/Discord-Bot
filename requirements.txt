@@ -2,3 +2,4 @@ discord.py
 Pillow
 PyDictionary
 random-word
+python-dotenv
