@@ -3,6 +3,7 @@ import unicodedata
 import shelve
 import re
 import textwrap
+import inspect
 from random import randint
 
 import discord
@@ -18,6 +19,7 @@ if ENV_FILE:
     load_dotenv(ENV_FILE)
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
+BETA_TOKEN = os.getenv('DISCORD_BETA_TOKEN')
 bot = commands.Bot(command_prefix='>')
 
 # Dir
@@ -27,6 +29,8 @@ ffmpeg_dir = os.path.join('C:','Program Files (x86)','ffmpeg','bin','ffmpeg.exe'
 font_dir = os.path.join('.','font','VNF-Comic Sans.ttf')
 data_dir = os.path.join('.','data')
 
+# Global variables
+beta = False
 data = shelve.open(data_dir)
 data.setdefault('msg_history', [])
 data.setdefault('deleted_msg', [])
@@ -90,7 +94,8 @@ class Hangman_Game:
 
         self.meaning = [f'**Meaning of \"{self.word}\":**', '']
         for word_type, mean in meaning.items():
-            self.meaning[1] += f'**⠂{word_type}:** {mean[0]}\n'
+            partial_mean = mean[0]
+            self.meaning[1] += '**⠂%s:** %s\n' % (word_type, partial_mean)
 
         self.guess_cnt = 0
         self.max_guess = 6
@@ -101,7 +106,7 @@ class Hangman_Game:
 
     @staticmethod
     def verify_guess(word):
-        return word.isalpha()
+        return all([text.isalpha() for text in word.split('-')])
 
     @staticmethod
     def get_letter_id(letter):
@@ -468,6 +473,11 @@ async def on_message_delete(message):
     print(message.author.name, message.content)
 
 
+@bot.command(name='ping', help='Ping the bot')
+async def _ping(ctx):
+    ctx.send('pong')
+
+
 @bot.command(name='wipe', help='Wipe all message data')
 @commands.check(is_Legacy)
 async def _wipe_msg_data(ctx):
@@ -599,40 +609,32 @@ async def _hhh(ctx, *, arg):
     await ctx.send(file=discord.File('%stmp%s' % (images_dir, image_name)))
 
 
-@bot.command(name='hm',
-             help='Hangman game. Syntax: >hm start (start a game) >hm end (end a game) >hm <word, letter> (guess)')
-async def _hm(ctx, arg: str):
-    arg = arg.lower()
-    if Hangman.is_processing:
-        return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
-    Hangman.is_processing = True
-    try:
-        arg = arg.lower()
-        if arg == '':
+def hm_spam_protection(func):
+    async def decorator(ctx, *args, **kwargs):
+        if Hangman.is_processing:
+            return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
+        Hangman.is_processing = True
+        await func(ctx, *args, **kwargs)
+        Hangman.is_processing = False
+
+    decorator.__name__ = func.__name__
+    sig = inspect.signature(func)
+    decorator.__signature__ = sig.replace(parameters=tuple(sig.parameters.values()))  # from ctx onward
+    return decorator
+
+
+@bot.group(help='Hangman game. >hm <word, letter> to guess', )
+@hm_spam_protection
+async def hm(ctx):
+    if ctx.invoked_subcommand is None:
+        arg = ctx.message.content.split()
+        if len(arg) == 1:
             return await ctx.send('Invalid command')
-
-        # --------------- >hm start -----------------------
-        if arg == 'start':
-            if not Hangman.status:
-                Hangman.status = True
-                return await ctx.send(embed=Hangman.show())
-            return await ctx.send('You can only play 1 game at a time %s' % emoji['oo'])
-
-        # --------------- >hm end -------------------------
-        if arg == 'end':
-            if Hangman.status:
-                Hangman.__init__()
-                return await ctx.send('The game ended')
-            return await ctx.send('There is no game to end -_-')
-        if not Hangman.status:
-            return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
-
-        # --------------- >hm current ---------------------
-        if arg == 'current':
-            embed = Hangman.show()
-            return await ctx.send(embed=embed)
+        arg = arg[1].lower()
 
         # --------------- >hm guess -----------------------
+        if not Hangman.status:
+            return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
         result = Hangman.guess(arg)
         if result == -1:
             return await ctx.send('Invalid guess')
@@ -654,8 +656,33 @@ async def _hm(ctx, arg: str):
             Hangman.__init__()
             return
         await ctx.send(embed=Hangman.show())
-    finally:
-        Hangman.is_processing = False
+
+
+@hm.command(name='start', help='Start a new game', aliases=['init','initiate','st'])
+@hm_spam_protection
+async def _start(ctx):
+    if not Hangman.status:
+        Hangman.status = True
+        return await ctx.send(embed=Hangman.show())
+    return await ctx.send('You can only play 1 game at a time %s' % emoji['oo'])
+
+
+@hm.command(name='end', help='End the current game', aliases=['abort'])
+@hm_spam_protection
+async def _start(ctx):
+    if Hangman.status:
+        Hangman.__init__()
+        return await ctx.send('The game ended')
+    return await ctx.send('There is no game to end -_-')
+
+
+@hm.command(name='current', help='Show the current game', aliases=['cr','np','cs'])
+@hm_spam_protection
+async def _start(ctx):
+    if not Hangman.status:
+        return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
+    embed = Hangman.show()
+    return await ctx.send(embed=embed)
 
 
 @bot.group(help='Ludo game')
@@ -849,5 +876,8 @@ async def _test(ctx, num1: int, num2: int, horse_id: int):
 
 # -------------------MAIN-------------------------#
 Hangman = Hangman_Game()
-# Ludo = Ludo_Game(['Legacy'])
-bot.run(TOKEN)
+Ludo = Ludo_Game(['Legacy'])
+if beta:
+    bot.run(BETA_TOKEN)
+else:
+    bot.run(TOKEN)
