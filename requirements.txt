@@ -1,5 +1,5 @@
 discord.py
 Pillow
-PyDictionary
+https://github.com/Legacy107/PyDictionary/tarball/master
 random-word
 python-dotenv
