@@ -1,1 +1,1 @@
-worker: python "Legacy Bot.py"
+worker: python "./core/Legacy Bot.py"

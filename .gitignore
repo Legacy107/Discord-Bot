@@ -1,2 +1,8 @@
 # Ignore files related to API keys
 .env
+
+# Ignore cache
+**/__pycache__
+
+# Ignore log
+d
