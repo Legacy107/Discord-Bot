@@ -1,1 +1,1 @@
-worker: cd ./core/ && python "./core/Legacy Bot.py"
+worker: cd ./core/ && python "Legacy Bot.py"
