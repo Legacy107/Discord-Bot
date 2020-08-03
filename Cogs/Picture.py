@@ -45,7 +45,7 @@ class Picture(commands.Cog):
 		image_name = '.'.join((name, extension))
 		await attachment[0].save('%s%s' % (self.images_dir, image_name), seek_begin=True, use_cached=False)
 		if attachment[0].height > global_var.max_height:
-			resize(image_name)
+			self.resize(image_name)
 		await ctx.send('Saved image as %s' % image_name)
 
 
