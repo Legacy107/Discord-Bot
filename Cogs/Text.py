@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.insert(0, '..' + os.path.sep)
 from globalvar import global_var
+from utils import api
 
 # Commands related to text
 class Text(commands.Cog):
@@ -16,6 +17,8 @@ class Text(commands.Cog):
 		self.history = data['msg_history']
 		self.deleted_msg = data['deleted_msg']
 		data.close()
+
+		self.facts = []
 
 	@commands.command(name='wipe', help='Wipe all message data')
 	@commands.is_owner()
@@ -83,6 +86,20 @@ class Text(commands.Cog):
 		for author, msg in self.deleted_msg[-num_msg:]:
 			temp += f'**{author}:** {msg}\n'
 		await ctx.send(temp)
+
+
+	@commands.command(name='fact', help='Get amazing facts')
+	async def _fact(self, ctx):
+		if not self.facts:
+			self.facts = await api.get_amazing_fact()
+
+		fact = self.facts.pop()
+		exploding_head = global_var.emoji[':O']
+
+		embed = discord.Embed(title=f'{exploding_head} AMAZING FACT!!! {exploding_head}', description='=================================\n**' + fact['content'] + '**', url=fact['url'], color=discord.Color.dark_blue())
+		embed.set_thumbnail(url=fact['image_url'])
+		embed.set_footer(text='Fact: mentalfloss.com\tImage: %s' % fact['image_credit'])
+		await ctx.send(embed=embed)
 
 
 def setup(bot):

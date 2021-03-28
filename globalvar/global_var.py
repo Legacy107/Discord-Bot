@@ -8,7 +8,7 @@ data_dir = os.path.join('..', 'data', 'data')
 beta = False
 history = []
 deleted_msg = []
-emoji = {'oo': '<:oo:697102602650779778>', 'clap': '👏', 'face_palm': '🤦‍♂', 'tongue': '😛', 'lol': '😄',
+emoji = {'oo': '<:oo:697102602650779778>', 'clap': '👏', 'face_palm': '🤦‍♂', 'tongue': '😛', 'lol': '😄', ':O': '🤯',
          'dice1': '<:dice1:714008777942237215>',
          'dice2': '<:dice2:714008777644572754>', 'dice3': '<:dice3:714008777849831427>',
          'dice4': '<:dice4:714008778701537430>', 'dice5': '<:dice5:714008778806394922>',

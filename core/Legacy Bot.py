@@ -12,18 +12,19 @@ sys.path.insert(0, '..' + os.path.sep)
 from globalvar import global_var
 global_var.set_up()
 
-# Get token
+# Load config from env
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 TOKEN = os.getenv('DISCORD_TOKEN')
+ADMIN_ID = os.getenv('ADMIN_ID')
 GUILD = os.getenv('DISCORD_GUILD')
 BETA_TOKEN = os.getenv('DISCORD_BETA_TOKEN')
 bot = commands.Bot(command_prefix='>')
 
 
-async def is_Legacy(ctx):
-    return ctx.author.id == 661137333474557972
+async def is_admin(ctx):
+    return ctx.author.id == ADMIN_ID
 
 
 @bot.event
