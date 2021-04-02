@@ -5,3 +5,4 @@ random-word
 python-dotenv
 PyNaCl
 pyyaml
+spotipy==2.17.1
