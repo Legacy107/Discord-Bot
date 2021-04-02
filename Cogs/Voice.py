@@ -21,7 +21,7 @@ class Spotify:
 		client_credentials_manager = SpotifyClientCredentials(client_id=CID, client_secret=SECRET)
 		self.spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-		with open('..\\data\\spotifyalbums.json') as albums_file:
+		with open(os.path.join('..', 'data', 'spotifyalbums.json')) as albums_file:
 			self.albums = json.load(albums_file)
 
 	def validate_option(self, option):
