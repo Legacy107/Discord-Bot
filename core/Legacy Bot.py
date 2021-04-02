@@ -62,7 +62,7 @@ if __name__ == '__main__':
         if filename.endswith('.py'):
             bot.load_extension('Cogs.%s' % filename[:-3])
 
-    if BETA:
+    if BETA == '1':
         bot.run(BETA_TOKEN)
     else:
         bot.run(TOKEN)
