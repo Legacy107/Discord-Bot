@@ -9,3 +9,4 @@ d
 
 # Ignore data
 data/
+!spotifyalbums.json

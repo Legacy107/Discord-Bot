@@ -19,6 +19,7 @@ if ENV_FILE:
 TOKEN = os.getenv('DISCORD_TOKEN')
 ADMIN_ID = os.getenv('ADMIN_ID')
 GUILD = os.getenv('DISCORD_GUILD')
+BETA = os.getenv('BETA')
 BETA_TOKEN = os.getenv('DISCORD_BETA_TOKEN')
 bot = commands.Bot(command_prefix='>')
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
         if filename.endswith('.py'):
             bot.load_extension('Cogs.%s' % filename[:-3])
 
-    if global_var.beta:
+    if BETA:
         bot.run(BETA_TOKEN)
     else:
         bot.run(TOKEN)
