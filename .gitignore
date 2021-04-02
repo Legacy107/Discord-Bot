@@ -8,5 +8,6 @@
 d
 
 # Ignore data
-data/
-!spotifyalbums.json
+.dir
+.bak
+.dat
