@@ -3,13 +3,13 @@ import os
 import re
 import inspect
 
-import sys
-sys.path.insert(0, '..' + os.path.sep)
-from globalvar import global_var
-
 from discord.ext import commands
 from random_word import RandomWords
 from PyDictionary import PyDictionary
+
+import sys
+sys.path.insert(0, '..' + os.path.sep)
+from globalvar import global_var
 
 English_dictionary = PyDictionary()
 random_word = RandomWords()
@@ -102,10 +102,10 @@ class Hangman_Game:
 				if self.is_win():
 					self.status = False
 				return number_of_matches
-			# No match            
+			# No match
 			self.guess_cnt += 1
 			return 0
-		# Guess a whole word    
+		# Guess a whole word
 		if word == self.word:
 			self.status = False
 			return 0
@@ -221,7 +221,7 @@ class Hangman(commands.Cog):
 		return await ctx.send('There is no game to end -_-')
 
 
-	@hm.command(name='current', help='Show the current game', aliases=['cr','np','cs'])
+	@hm.command(name='current', help='Show the current game', aliases=['cr', 'np', 'cs'])
 	@hm_spam_protection
 	async def _current(self, ctx):
 		if not self.Hangman.status:
@@ -232,11 +232,3 @@ class Hangman(commands.Cog):
 
 def setup(bot):
 	bot.add_cog(Hangman(bot))
-
-
-def test():
-	pass
-
-
-if __name__ == '__main__':
-	test()

@@ -66,7 +66,7 @@ class Picture(commands.Cog):
 			os.remove('%s%s' % (self.images_dir, image_name))
 		await ctx.send('Removed %s' % image_name)
 
-	
+
 	@commands.command(name='listpic', help='List all pics. Syntax: >listpic')
 	async def _listpic(self, ctx):
 		file = shelve.open(self.data_dir)
@@ -122,7 +122,7 @@ class Picture(commands.Cog):
 			current_height -= height
 
 		image.save('%stmp%s' % (self.images_dir, image_name))
-		await ctx.send(file=discord.File('%stmp%s' % (self.images_dir, image_name)))	
+		await ctx.send(file=discord.File('%stmp%s' % (self.images_dir, image_name)))
 
 def setup(bot):
 	bot.add_cog(Picture(bot))

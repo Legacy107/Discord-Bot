@@ -27,6 +27,6 @@ class Utility(commands.Cog):
 		self.bot.unload_extension('Cogs.%s' % extension.capitalize())
 		await ctx.send('Successfully unloaded %s extension' % extension)
 
-	
+
 def setup(bot):
 	bot.add_cog(Utility(bot))

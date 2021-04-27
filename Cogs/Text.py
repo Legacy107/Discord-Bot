@@ -3,9 +3,9 @@ import discord
 import shelve
 import os
 import sys
+from utils import api
 sys.path.insert(0, '..' + os.path.sep)
 from globalvar import global_var
-from utils import api
 
 # Commands related to text
 class Text(commands.Cog):

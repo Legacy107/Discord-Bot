@@ -25,7 +25,7 @@ class Spotify:
 			self.albums = json.load(albums_file)
 
 	def validate_option(self, option):
-		return (option in self.albums)
+		return option in self.albums
 
 	def get_playlist_tracks(self, option):
 		if type(self.albums[option]) is list:
@@ -142,12 +142,12 @@ class Voice(commands.Cog):
 	@song.command(name='pick', help='Pick a random song. Syntax: >song pick <option (required)>')
 	async def _pick(self, ctx, *, arg):
 		option = arg
-		
+
 		if not self.spotify.validate_option(option):
 			return await ctx.send('Invalid option')
-		
+
 		track = self.get_track(option)
-		
+
 		music_note = global_var.emoji['music']
 		embed = discord.Embed(title='%s %s %s' % (music_note, track['name'], music_note), description=track['artist'], url=track['track_url'], color=discord.Color.teal())
 		embed.set_thumbnail(url=track['image_url'])
@@ -155,7 +155,7 @@ class Voice(commands.Cog):
 			embed.set_footer(text='from album: %s' % track['album'])
 		await ctx.send(embed=embed)
 
-	
+
 	# @song.command(name='play', help='Play a random song. Syntax: >song play <music bot\'s prefix> <option (required)>')
 	# async def _play_song(self, ctx, prefix, *, arg):
 	# 	option = arg
@@ -186,4 +186,3 @@ if __name__ == "__main__":
 	# Testing
 	spotify = Spotify()
 	spotify.get_playlist_tracks('acoustic')
-	

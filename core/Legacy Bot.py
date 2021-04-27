@@ -32,14 +32,6 @@ async def is_admin(ctx):
 async def on_ready():
     guild = discord.utils.get(bot.guilds, name=GUILD)
 
-    async def get_unicode_char():
-        cnt = 97
-        dic = {}
-        for i in range(26):
-            dic[chr(cnt)] = unicodedata.lookup('REGIONAL INDICATOR SYMBOL LETTER %s' % chr(cnt).upper())
-            cnt += 1
-        print(dic)
-
     await bot.change_presence(activity=discord.Game(name='>help'))
     print(f'{bot.user} is ready')
 
