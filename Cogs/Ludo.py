@@ -328,22 +328,22 @@ class Ludo(commands.Cog):
 
 	@ld.command(name='1', help='Move 1')
 	async def _1(self, ctx):
-		await self.ld_move(self, ctx, 1)
+		await self.ld_move(ctx, 1)
 
 
 	@ld.command(name='2', help='Move 2')
 	async def _2(self, ctx):
-		await self.ld_move(self, ctx, 2)
+		await self.ld_move(ctx, 2)
 
 
 	@ld.command(name='3', help='Move 3')
 	async def _3(self, ctx):
-		await self.ld_move(self, ctx, 3)
+		await self.ld_move(ctx, 3)
 
 
 	@ld.command(name='4', help='Move 4')
 	async def _4(self, ctx):
-		await self.ld_move(self, ctx, 4)
+		await self.ld_move(ctx, 4)
 
 
 	@ld.command(name='skip', help='Skip a move')
