@@ -160,12 +160,11 @@ class Ludo_Game:
     def verify(self, name):
         if self.is_processing:
             return 'dmm spam spam cl %s' % global_var.emoji['oo']
-        elif not self.status:
+        if not self.status:
             return 'Please start a game first'
-        elif name != self.players[self.turn].name:
+        if name != self.players[self.turn].name:
             return 'It\'s not your turn bruh'
-        else:
-            return ''
+        return ''
 
     def is_special_dice(self):
         return self.dice[0] == self.dice[1] or (sum(self.dice) == 7 and min(self.dice) == 1)
