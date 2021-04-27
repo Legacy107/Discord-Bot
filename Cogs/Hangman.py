@@ -66,7 +66,7 @@ class Hangman_Game:
 
 	@staticmethod
 	def verify_guess(word):
-		return all([text.isalpha() for text in word.split('-')])
+		return all(text.isalpha() for text in word.split('-'))
 
 	@staticmethod
 	def get_letter_id(letter):
