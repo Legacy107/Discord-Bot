@@ -21,12 +21,14 @@ RE_invalid_word = re.compile('\d|\'')	# contains digits or symbols except for hy
 def gen_rand_word():
 	try:
 		word = random_word.get_random_word(hasDictionaryDef="true", minCorpusCount=1000, minLength=4).lower()
+		word = "supreme court"
 		if RE_invalid_word.search(word):
 			print('Word contains digits or symbols')
 			return gen_rand_word()
 		meaning = English_dictionary.meaning(word)
-		test = meaning.keys()
-		return word, meaning
+		if meaning:
+			return word, meaning
+		return gen_rand_word()
 	except:
 		print('Fail to gen_rand_word')
 		return gen_rand_word()
@@ -237,7 +239,7 @@ def setup(bot):
 
 
 def _test():
-	print(emoji)
+	gen_rand_word()
 
 if __name__ == '__main__':
 	_test()
