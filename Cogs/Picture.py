@@ -18,7 +18,8 @@ class Picture(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	def resize(self, image_name):
+	@staticmethod
+	def resize(image_name):
 		image = Image.open('%s%s' % (image_dir, image_name))
 		width = int(float(image.size[0]) * (max_height / float(image.size[1])))
 		image = image.resize((width, max_height), Image.ANTIALIAS)
