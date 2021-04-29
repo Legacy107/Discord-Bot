@@ -20,7 +20,7 @@ bot = commands.Bot(command_prefix='>')
 
 @bot.event
 async def on_ready():
-    #guild = discord.utils.get(bot.guilds, name=GUILD)
+    # guild = discord.utils.get(bot.guilds, name=GUILD)
 
     await bot.change_presence(activity=discord.Game(name='>help'))
     print(f'{bot.user} is ready')
