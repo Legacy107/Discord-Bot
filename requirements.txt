@@ -1,4 +1,4 @@
-discord.py==1.4.1
+discord.py==1.7.1
 Pillow
 https://github.com/Legacy107/PyDictionary/tarball/master
 random-word

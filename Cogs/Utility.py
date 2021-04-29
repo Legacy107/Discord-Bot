@@ -1,9 +1,9 @@
-from discord.ext import commands
-import discord
 import os
 import sys
-sys.path.insert(0, '..' + os.path.sep)
-from globalvar import global_var
+
+import discord
+from discord.ext import commands
+
 
 # Utility commands
 class Utility(commands.Cog):
