@@ -21,7 +21,6 @@ RE_invalid_word = re.compile('\d|\'')	# contains digits or symbols except for hy
 def gen_rand_word():
 	try:
 		word = random_word.get_random_word(hasDictionaryDef="true", minCorpusCount=1000, minLength=4).lower()
-		word = "supreme court"
 		if RE_invalid_word.search(word):
 			print('Word contains digits or symbols')
 			return gen_rand_word()
