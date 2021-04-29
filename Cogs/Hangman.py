@@ -1,19 +1,21 @@
-import discord
+import inspect
 import os
 import re
-import inspect
-
-from discord.ext import commands
-from random_word import RandomWords
-from PyDictionary import PyDictionary
-
 import sys
-sys.path.insert(0, '..' + os.path.sep)
-from globalvar import global_var
+
+import discord
+from discord.ext import commands
+from PyDictionary import PyDictionary
+from random_word import RandomWords
+
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+from globalvar.global_var import emoji
 
 English_dictionary = PyDictionary()
 random_word = RandomWords()
-RE_invalid_word = re.compile('\d|\'')	# contains digits or symbols other than hyphen
+RE_invalid_word = re.compile('\d|\'')	# contains digits or symbols except for hyphen
 
 
 def gen_rand_word():
@@ -76,7 +78,7 @@ class Hangman_Game:
 	async def add_reactions(message):
 		letter_ascii = ord('a')
 		for i in range(26):
-			await message.add_reaction(global_var.emoji[chr(letter_ascii+i)])
+			await message.add_reaction(emoji[chr(letter_ascii+i)])
 
 	def is_win(self):
 		return self.word == self.guessed_word
@@ -131,7 +133,7 @@ class Hangman_Game:
 			temp = 'es'
 		else:
 			temp = ''
-		embed = discord.Embed(title='%s You won %s' % (global_var.emoji['clap'], global_var.emoji['clap']),
+		embed = discord.Embed(title='%s You won %s' % (emoji['clap'], emoji['clap']),
 							  description='You won with %d incorrect guess%s' % (self.guess_cnt, temp),
 							  color=discord.Color.green())
 		embed.set_author(name='Hang the man Game', icon_url=self.thumbnail)
@@ -139,23 +141,26 @@ class Hangman_Game:
 		return embed
 
 	def show_lose(self):
-		embed = discord.Embed(title='%s You lost %s' % (global_var.emoji['tongue'], global_var.emoji['tongue']),
+		embed = discord.Embed(title='%s You lost %s' % (emoji['tongue'], emoji['tongue']),
 							  description='Hang is dead cuz you\'re *retarded* %s\n%s' % (
-								  global_var.emoji['lol'], self.state[self.guess_cnt]),
+								  emoji['lol'], self.state[self.guess_cnt]),
 							  color=discord.Color.red())
 		embed.set_author(name='Hang the man Game', icon_url=self.thumbnail)
-		embed.add_field(name='The word is **%s**' % self.word, value='%s\n%s' % (self.meaning[0], self.meaning[1]),
-						inline=False)
+		embed.add_field(
+			name='The word is **%s**' % self.word,
+			value='%s\n%s' % (self.meaning[0], self.meaning[1]),
+			inline=False
+		)
 		return embed
 
 
 def hm_spam_protection(func):
 	async def decorator(self, ctx, *args, **kwargs):
-		if self.Hangman.is_processing:
-			return await ctx.send('dmm spam spam cl %s' % global_var.emoji['oo'])
-		self.Hangman.is_processing = True
+		if self.Client.is_processing:
+			return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
+		self.Client.is_processing = True
 		await func(self, ctx, *args, **kwargs)
-		self.Hangman.is_processing = False
+		self.Client.is_processing = False
 
 	decorator.__name__ = func.__name__
 	decorator.__signature__ = inspect.signature(func)
@@ -166,7 +171,7 @@ def hm_spam_protection(func):
 class Hangman(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.Hangman = Hangman_Game()
+		self.Client = Hangman_Game()
 
 	@commands.group(help='Hangman game. >hm <word, letter> to guess')
 	@hm_spam_protection
@@ -178,14 +183,14 @@ class Hangman(commands.Cog):
 			arg = arg[1].lower()
 
 			# --------------- >hm guess -----------------------
-			if not self.Hangman.status:
-				return await ctx.send('There is no game to play, pls start a game first %s' % global_var.emoji['oo'])
-			result = self.Hangman.guess(arg)
+			if not self.Client.status:
+				return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
+			result = self.Client.guess(arg)
 			if result == -1:
 				return await ctx.send('Invalid guess')
-			if not self.Hangman.status:  # player won the game
-				await ctx.send(embed=self.Hangman.show_win())
-				self.Hangman.__init__()
+			if not self.Client.status:  # player won the game
+				await ctx.send(embed=self.Client.show_win())
+				self.Client.__init__()
 				return
 			# valid guess
 			if result == -2:
@@ -196,39 +201,43 @@ class Hangman(commands.Cog):
 				else:
 					temp = 'is'
 				await ctx.send(f'There {temp} {result} {arg}')
-			if self.Hangman.guess_cnt > self.Hangman.max_guess:
-				await ctx.send(embed=self.Hangman.show_lose())
-				self.Hangman.__init__()
+			if self.Client.guess_cnt > self.Client.max_guess:
+				await ctx.send(embed=self.Client.show_lose())
+				self.Client.__init__()
 				return
-			await ctx.send(embed=self.Hangman.show())
+			await ctx.send(embed=self.Client.show())
 
 
 	@hm.command(name='start', help='Start a new game', aliases=['st', 'init', 'initiate', 'on'])
-	@hm_spam_protection
 	async def _start(self, ctx):
-		if not self.Hangman.status:
-			self.Hangman.status = True
-			return await ctx.send(embed=self.Hangman.show())
-		return await ctx.send('You can only play 1 game at a time %s' % global_var.emoji['oo'])
+		if not self.Client.status:
+			self.Client.status = True
+			return await ctx.send(embed=self.Client.show())
+		return await ctx.send('You can only play 1 game at a time %s' % emoji['oo'])
 
 
 	@hm.command(name='end', help='End the current game', aliases=['abort', 'fs', 'off'])
-	@hm_spam_protection
 	async def _end(self, ctx):
-		if self.Hangman.status:
-			self.Hangman.__init__()
+		if self.Client.status:
+			self.Client.__init__()
 			return await ctx.send('The game ended')
 		return await ctx.send('There is no game to end -_-')
 
 
 	@hm.command(name='current', help='Show the current game', aliases=['cr', 'np', 'cs'])
-	@hm_spam_protection
 	async def _current(self, ctx):
-		if not self.Hangman.status:
-			return await ctx.send('There is no game to play, pls start a game first %s' % global_var.emoji['oo'])
-		embed = self.Hangman.show()
+		if not self.Client.status:
+			return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
+		embed = self.Client.show()
 		return await ctx.send(embed=embed)
 
 
 def setup(bot):
 	bot.add_cog(Hangman(bot))
+
+
+def _test():
+	print(emoji)
+
+if __name__ == '__main__':
+	_test()

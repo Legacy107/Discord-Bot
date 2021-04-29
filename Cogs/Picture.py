@@ -1,26 +1,28 @@
-from discord.ext import commands
-from PIL import Image, ImageDraw, ImageFont
-import discord
-import shelve
 import os
-import textwrap
+from PIL import Image, ImageDraw, ImageFont
+import shelve
 import sys
-sys.path.insert(0, '..' + os.path.sep)
-from globalvar import global_var
+
+import discord
+from discord.ext import commands
+import textwrap
+
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+from globalvar.global_var import image_dir, data_dir, font_dir, max_height
+
 
 # Commands related to pictures
 class Picture(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.images_dir = os.path.join('..', 'images', '') 	# ..\images
-		self.data_dir = os.path.join('..', 'data', 'data')			# ..\data
-		self.font_dir = os.path.join('..', 'font', 'VNF-Comic Sans.ttf')	#  ..\font\VNF-Comic Sans.ttf
 
 	def resize(self, image_name):
-		image = Image.open('%s%s' % (self.images_dir, image_name))
-		width = int(float(image.size[0]) * (global_var.max_height / float(image.size[1])))
-		image = image.resize((width, global_var.max_height), Image.ANTIALIAS)
-		image.save('%s%s' % (self.images_dir, image_name))
+		image = Image.open('%s%s' % (image_dir, image_name))
+		width = int(float(image.size[0]) * (max_height / float(image.size[1])))
+		image = image.resize((width, max_height), Image.ANTIALIAS)
+		image.save('%s%s' % (image_dir, image_name))
 		image.close()
 
 	@commands.command(name='savepic', help='Save attached image. Syntax: >savepic <name> + <image>')
@@ -33,7 +35,7 @@ class Picture(commands.Cog):
 		if len(attachment) > 1:
 			await ctx.send('Attach 1 image only')
 			return
-		file = shelve.open(self.data_dir)
+		file = shelve.open(data_dir)
 		if name in file['image'].keys():
 			await ctx.send('Invalid name')
 			return
@@ -43,8 +45,8 @@ class Picture(commands.Cog):
 		file['image'] = all_image
 		file.close()
 		image_name = '.'.join((name, extension))
-		await attachment[0].save('%s%s' % (self.images_dir, image_name), seek_begin=True, use_cached=False)
-		if attachment[0].height > global_var.max_height:
+		await attachment[0].save('%s%s' % (image_dir, image_name), seek_begin=True, use_cached=False)
+		if attachment[0].height > max_height:
 			self.resize(image_name)
 		await ctx.send('Saved image as %s' % image_name)
 
@@ -52,7 +54,7 @@ class Picture(commands.Cog):
 	@commands.command(name='delpic', help='Delete a pic saved with >savepic. Syntax: >delpic <name>')
 	async def _delpic(self, ctx, name: str):
 		name = name.lower()
-		file = shelve.open(self.data_dir)
+		file = shelve.open(data_dir)
 		all_images = file['image']
 		if name not in all_images.keys():
 			await ctx.send('Pic not found')
@@ -62,14 +64,14 @@ class Picture(commands.Cog):
 		file['image'] = all_images
 		file.close()
 		image_name = '.'.join((name, extension))
-		if os.path.exists('%s%s' % (self.images_dir, image_name)):
-			os.remove('%s%s' % (self.images_dir, image_name))
+		if os.path.exists('%s%s' % (image_dir, image_name)):
+			os.remove('%s%s' % (image_dir, image_name))
 		await ctx.send('Removed %s' % image_name)
 
 
 	@commands.command(name='listpic', help='List all pics. Syntax: >listpic')
 	async def _listpic(self, ctx):
-		file = shelve.open(self.data_dir)
+		file = shelve.open(data_dir)
 		text = '`| '
 		for name in file['image'].keys():
 			text += name + ' | '
@@ -80,20 +82,20 @@ class Picture(commands.Cog):
 	@commands.command(name='pic', help='Send a pic saved with >savepic. Syntax: >pic <name>')
 	async def _pic(self, ctx, name: str):
 		name = name.lower()
-		file = shelve.open(self.data_dir)
+		file = shelve.open(data_dir)
 		if name not in file['image'].keys():
 			await ctx.send('Pic not found')
 			return
 		extension = file['image'][name]
 		file.close()
 		await ctx.send(content='**%s said**' % ctx.message.author.name,
-					   file=discord.File('%s%s.%s' % (self.images_dir, name, extension)))
+					   file=discord.File('%s%s.%s' % (image_dir, name, extension)))
 
 
 	@commands.command(name='hhh', help=u'Huấn Rô Sì')
 	async def _hhh(self, ctx, *, arg):
 		image_name = 'hhh.png'
-		font = ImageFont.truetype(self.font_dir, 18)
+		font = ImageFont.truetype(font_dir, 18)
 		header = u'Này {users}! Anh Huấn tặng chú 1 câu'
 		users = ctx.message.mentions
 		names = [user.name for user in users]
@@ -101,7 +103,7 @@ class Picture(commands.Cog):
 		max_letters = 23
 		color = 'black'
 
-		image = Image.open('%s%s' % (self.images_dir, image_name))
+		image = Image.open('%s%s' % (image_dir, image_name))
 		image_width, image_height = image.size
 		draw = ImageDraw.Draw(image)
 
@@ -121,8 +123,8 @@ class Picture(commands.Cog):
 			draw.text(((image_width - width) / 2, current_height), line, font=font, fill=color)
 			current_height -= height
 
-		image.save('%stmp%s' % (self.images_dir, image_name))
-		await ctx.send(file=discord.File('%stmp%s' % (self.images_dir, image_name)))
+		image.save('%stmp%s' % (image_dir, image_name))
+		await ctx.send(file=discord.File('%stmp%s' % (image_dir, image_name)))
 
 def setup(bot):
 	bot.add_cog(Picture(bot))

@@ -1,6 +1,6 @@
-import requests
 import asyncio
 import re
+import requests
 
 
 async def get_amazing_fact():

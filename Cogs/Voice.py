@@ -1,13 +1,20 @@
-from discord.ext import commands
-import discord
-import shelve, os, sys, json, functools, random
 from dotenv import load_dotenv, find_dotenv
+import functools
+import json
+import os
+import random
+import shelve
+import sys
 
+import discord
+from discord.ext import commands
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-sys.path.insert(0, '..' + os.path.sep)
-from globalvar import global_var
+currentdir = os.path.dirname(os.path.realpath(__file__))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+from globalvar.global_var import spotify_albums_dir, emoji
 
 
 class Spotify:
@@ -19,9 +26,9 @@ class Spotify:
 		SECRET = os.getenv('SPOTIFY_SECRET')
 
 		client_credentials_manager = SpotifyClientCredentials(client_id=CID, client_secret=SECRET)
-		self.spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+		self.Client = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-		with open(os.path.join('..', 'data', 'spotifyalbums.json')) as albums_file:
+		with open(spotify_albums_dir) as albums_file:
 			self.albums = json.load(albums_file)
 
 	def validate_option(self, option):
@@ -33,9 +40,9 @@ class Spotify:
 		else:
 			playlist_id = self.albums[option]
 
-		total_tracks = self.spotify.playlist(playlist_id, fields='tracks')['tracks']['total']
+		total_tracks = self.Client.playlist(playlist_id, fields='tracks')['tracks']['total']
 		offset = random.randint(0, max(0, total_tracks-10))
-		data = self.spotify.playlist_tracks(playlist_id, limit=10, offset=offset)['items']
+		data = self.Client.playlist_tracks(playlist_id, limit=10, offset=offset)['items']
 		data = list(map(lambda item: item['track'], data))
 		data = list(map(self.clear_data, data))
 		random.shuffle(data)
@@ -148,7 +155,7 @@ class Voice(commands.Cog):
 
 		track = self.get_track(option)
 
-		music_note = global_var.emoji['music']
+		music_note = emoji['music']
 		embed = discord.Embed(title='%s %s %s' % (music_note, track['name'], music_note), description=track['artist'], url=track['track_url'], color=discord.Color.teal())
 		embed.set_thumbnail(url=track['image_url'])
 		if track['album'] != 'single':
@@ -170,7 +177,7 @@ class Voice(commands.Cog):
 	# 	#await self._leave(ctx)
 
 
-	@song.command(name='option', help='Show all option in ur DM')
+	@song.command(name='option', help='Show all options in ur DM')
 	async def _option(self, ctx):
 		options = '`| '
 		for option in self.spotify.albums.keys():
@@ -181,6 +188,7 @@ class Voice(commands.Cog):
 
 def setup(bot):
 	bot.add_cog(Voice(bot))
+
 
 if __name__ == "__main__":
 	# Testing
