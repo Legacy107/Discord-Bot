@@ -1,3 +1,5 @@
+import aiohttp
+import io
 import os
 from PIL import Image, ImageDraw, ImageFont
 import shelve
@@ -11,12 +13,15 @@ currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 from globalvar.global_var import image_dir, data_dir, font_dir, max_height
+from utils.database import PicDatabase
 
 
 # Commands related to pictures
 class Picture(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.db_client = PicDatabase()
+		self.archive_channel = None
 
 	@staticmethod
 	def resize(image_name):
@@ -27,70 +32,73 @@ class Picture(commands.Cog):
 		image.close()
 
 	@commands.command(name='savepic', help='Save attached image. Syntax: >savepic <name> + <image>')
-	async def _savepic(self, ctx, name: str):
+	async def _savepic(self, ctx, name: str, *, full_name=''):
 		name = name.lower()
+		# set default value equal to name
+		full_name = full_name or name
 		attachment = ctx.message.attachments
 		if len(attachment) == 0:
-			await ctx.send('Pls attach an image')
-			return
+			return await ctx.send('Pls attach an image')
 		if len(attachment) > 1:
-			await ctx.send('Attach 1 image only')
-			return
-		file = shelve.open(data_dir)
-		if name in file['image'].keys():
-			await ctx.send('Invalid name')
-			return
+			return await ctx.send('Attach 1 image only')
+		if await self.db_client.has_pic(name):
+			return await ctx.send('Invalid name')
+
 		extension = attachment[0].url.split('.')[-1]
-		all_image = file['image']
-		all_image[name] = extension
-		file['image'] = all_image
-		file.close()
 		image_name = '.'.join((name, extension))
+
 		await attachment[0].save('%s%s' % (image_dir, image_name), seek_begin=True, use_cached=False)
 		if attachment[0].height > max_height:
 			self.resize(image_name)
-		await ctx.send('Saved image as %s' % image_name)
+		res = await self.archive_channel.send(file=discord.File('%s%s' % (image_dir, image_name)))
+		pic_url = res.attachments[0].url
+
+		await self.db_client.add_pic(name, pic_url, full_name)
+
+		await ctx.send('Successfully saved image as %s' % image_name)
 
 
 	@commands.command(name='delpic', help='Delete a pic saved with >savepic. Syntax: >delpic <name>')
 	async def _delpic(self, ctx, name: str):
 		name = name.lower()
-		file = shelve.open(data_dir)
-		all_images = file['image']
-		if name not in all_images.keys():
-			await ctx.send('Pic not found')
-			return
-		extension = all_images[name]
-		del all_images[name]
-		file['image'] = all_images
-		file.close()
-		image_name = '.'.join((name, extension))
-		if os.path.exists('%s%s' % (image_dir, image_name)):
-			os.remove('%s%s' % (image_dir, image_name))
-		await ctx.send('Removed %s' % image_name)
+		if not await self.db_client.has_pic(name):
+			return await ctx.send('Pic not found')
+
+		await self.db_client.delete_pic(name)
+
+		await ctx.send('Successfully removed pic %s' % name)
 
 
 	@commands.command(name='listpic', help='List all pics. Syntax: >listpic')
 	async def _listpic(self, ctx):
-		file = shelve.open(data_dir)
 		text = '`| '
-		for name in file['image'].keys():
-			text += name + ' | '
+		all_pics = await self.db_client.get_all_pics()
+		for pic in all_pics:
+			text += pic['id'] + ' ' + ('(' + pic['name'] + ')' if pic['id'] != pic['name'] else '') + ' | '
+			# avoid exceeding msg length limit
+			if len(text) > 1500:
+				text += '`'
+				await ctx.send(text)
+				text = text = '`| '
 		text += '`'
-		file.close()
-		await ctx.send(text)
+		# not empty
+		if len(text) > 4:
+			await ctx.send(text)
 
 	@commands.command(name='pic', help='Send a pic saved with >savepic. Syntax: >pic <name>')
 	async def _pic(self, ctx, name: str):
 		name = name.lower()
-		file = shelve.open(data_dir)
-		if name not in file['image'].keys():
-			await ctx.send('Pic not found')
-			return
-		extension = file['image'][name]
-		file.close()
-		await ctx.send(content='**%s said**' % ctx.message.author.name,
-					   file=discord.File('%s%s.%s' % (image_dir, name, extension)))
+		if not await self.db_client.has_pic(name):
+			return await ctx.send('Pic not found')
+
+		pic_url = await self.db_client.get_pic_url(name)
+		file_name = pic_url.split('/')[-1]
+		async with aiohttp.ClientSession() as session:
+			async with session.get(pic_url) as res:
+				if res.status != 200:
+					return await ctx.send('Network error. Pls try again.')
+				data = io.BytesIO(await res.read())
+				await ctx.send(content='**%s said**' % ctx.message.author.name, file=discord.File(data, file_name))
 
 
 	@commands.command(name='hhh', help=u'Huấn Rô Sì')

@@ -27,16 +27,10 @@ class Text(commands.Cog):
 	@commands.command(name='wipe', help='Wipe all message data')
 	@commands.is_owner()
 	async def _wipe_msg_data(self, ctx):
-	    self.history.clear()
-	    self.deleted_msg.clear()
-	    file = shelve.open(data_dir, flag='r')
-	    image_data = file['image']
-	    file.close()
 	    os.remove(data_dir + '.dat')
 	    os.remove(data_dir + '.bak')
 	    os.remove(data_dir + '.dir')
 	    file = shelve.open(data_dir, flag='n')
-	    file.setdefault('image', image_data)
 	    file.close()
 	    await ctx.send('Successfully wiped out message data')
 
