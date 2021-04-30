@@ -40,6 +40,7 @@ class Pic(Base):
 class PicDatabase:
 	def __init__(self):
 		self.engine = None
+		self.async_session = None
 		self.async_sessionmaker = None
 
 	async def setup(self):
