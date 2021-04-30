@@ -19,7 +19,7 @@ from sqlalchemy.pool import NullPool
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
 
 Base = declarative_base()
 
