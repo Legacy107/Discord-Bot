@@ -8,7 +8,7 @@ from discord.ext import commands
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-from globalvar.global_var import max_msg, emoji, data_dir
+from globalvar.global_var import data_dir, emoji, max_msg
 from utils import api
 
 
@@ -74,7 +74,6 @@ class Text(commands.Cog):
 			temp += f'**{author}:** {msg}\n'
 		await ctx.send(temp)
 
-
 	@commands.command(name='listdel', help='Show deleted message. Syntax: >listdel <number of msg>')
 	async def _listdel(self, ctx, num_msg: int):
 		if num_msg > 30:
@@ -84,7 +83,6 @@ class Text(commands.Cog):
 		for author, msg in self.deleted_msg[-num_msg:]:
 			temp += f'**{author}:** {msg}\n'
 		await ctx.send(temp)
-
 
 	@commands.command(name='fact', help='Get amazing facts')
 	async def _fact(self, ctx):

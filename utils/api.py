@@ -15,7 +15,7 @@ async def get_amazing_fact():
 
     data = list(map(lambda fact: {
         'content': re.sub(r"<[^>]*>", "*", fact['fact']),
-        'url': fact['fullStoryUrl'],
+        'url': fact['fullStoryUrl'] or '',
         'image_url': fact['primaryImage'],
         'image_credit': fact['imageCredit']
     }, data))
