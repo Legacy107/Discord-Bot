@@ -3,18 +3,22 @@ import functools
 import json
 import os
 import random
-import shelve
+import re
 import sys
 
 import discord
 from discord.ext import commands
+from discord.utils import escape_mentions
+from gtts import gTTS, lang
+from io import BytesIO
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-from globalvar.global_var import spotify_albums_dir, emoji
+from globalvar.global_var import spotify_albums_dir, tts_dir, emoji
 
 
 class Spotify:
@@ -146,6 +150,7 @@ class Voice(commands.Cog):
 			track = next(generator)
 		return track
 
+
 	@song.command(name='pick', help='Pick a random song. Syntax: >song pick <option (required)>')
 	async def _pick(self, ctx, *, arg):
 		option = arg
@@ -184,6 +189,58 @@ class Voice(commands.Cog):
 			options += option + ' | '
 		options += '`'
 		await ctx.message.author.send(options)
+
+
+	@commands.command(name='say', help='Convert text to speech. Syntax: >say <lang (optional, default: en)> <text>', aliases=['tts'])
+	async def _say(self, ctx, *, arg):
+		# mp3_fp = BytesIO()
+		# tts = gTTS(arg, lang='en')
+		# tts.write_to_fp(mp3_fp)
+		# mp3_fp.seek(0)
+
+		# Get language option
+		langs = lang.tts_langs().keys()
+		option = arg.split()[0]
+		if option in langs:
+			arg = arg[len(option) + 1:]
+		else:
+			option = 'en'
+
+		# Parse mentions
+		arg = escape_mentions(arg)
+		pattern = '<[^<>]*>'
+		users = ctx.message.mentions
+		for user in users:
+			arg = re.sub(pattern, user.display_name, arg, 1)
+
+		gTTS(arg, lang=option).save(tts_dir)
+
+		source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=tts_dir))
+		ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
+
+
+	@commands.command(name='langs', help='Show all supported tts languages', aliases=['lang'])
+	async def _langs(self, ctx):
+		options = '`| '
+		langs = lang.tts_langs()
+		for lang_ in langs.keys():
+			options += lang_ + ' | '
+		options += '`'
+		await ctx.message.author.send(options)
+
+
+	@_play.before_invoke
+	@_say.before_invoke
+	async def ensure_voice(self, ctx):
+		if ctx.voice_client is None:
+			if ctx.author.voice:
+				await ctx.author.voice.channel.connect()
+			else:
+				await ctx.send("You are not connected to a voice channel")
+				raise commands.CommandError("Author not connected to a voice channel")
+		elif ctx.voice_client.is_playing():
+			await ctx.send("The bot is playing. Use >hm stop to force stop")
+			raise commands.CommandError("Bot is playing")
 
 
 def setup(bot):

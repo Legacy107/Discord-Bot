@@ -5,6 +5,7 @@ import shelve
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 data_dir = os.path.join(parentdir, 'data', 'data')
+tts_dir = os.path.join(parentdir, 'data', 'tts.mp3')
 spotify_albums_dir = os.path.join(parentdir, 'data', 'spotifyalbums.json')
 font_dir = os.path.join(parentdir, 'font', 'VNF-Comic Sans.ttf')
 image_dir = os.path.join(parentdir, 'images', '')
