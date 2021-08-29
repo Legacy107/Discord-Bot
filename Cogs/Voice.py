@@ -10,7 +10,7 @@ import discord
 from discord.ext import commands
 from discord.utils import escape_mentions
 from gtts import gTTS, lang
-from io import BytesIO
+# from io import BytesIO
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
