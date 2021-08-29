@@ -72,7 +72,6 @@ class Spotify:
 class Voice(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.ffmpeg_dir = os.path.join('C:', 'Program Files (x86)', 'ffmpeg', 'bin', 'ffmpeg.exe')
 		self.audio_dir = os.path.join('..', 'audio', '')
 		self.spotify = Spotify()
 		self.track_generator = {}
@@ -106,7 +105,7 @@ class Voice(commands.Cog):
 		name += '.mp3'
 		audio_file = '%s%s' % (self.audio_dir, name)
 		if os.path.exists(audio_file):
-			source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(executable=self.ffmpeg_dir, source=audio_file))
+			source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=audio_file))
 			ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
 			await ctx.send('Playing %s' % name)
 		else:

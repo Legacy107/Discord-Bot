@@ -1,5 +1,6 @@
 asyncpg==0.22.0
 discord.py==1.7.1
+ffmpeg
 gTTS==2.2.3
 Pillow
 https://github.com/Legacy107/PyDictionary/tarball/master
