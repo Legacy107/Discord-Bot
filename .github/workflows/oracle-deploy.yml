@@ -62,7 +62,8 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
+        envs: DOCKER_PASSWORD,DOCKER_USER_NAME,DOCKER_REGISTRY,APP_NAME,DOCKER_TAG
         script: |
           sudo echo "$DOCKER_PASSWORD" | sudo docker login --username $DOCKER_USER_NAME --password-stdin
           sudo docker pull $DOCKER_REGISTRY/$APP_NAME:$DOCKER_TAG
-          sudo docker run -d --name discord-bot legacy-discord-bot 
+          sudo docker run -d --name $APP_NAME $APP_NAME
