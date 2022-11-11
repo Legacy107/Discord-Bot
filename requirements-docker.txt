@@ -1,5 +1,4 @@
 futures<3.0.0
-asyncpg==0.22.0
 discord.py==1.7.1
 ffmpeg
 gTTS==2.2.3

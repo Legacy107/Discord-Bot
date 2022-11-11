@@ -11,3 +11,7 @@ d
 .dir
 .bak
 .dat
+
+.deepsource.toml
+*.dump
+*.sql
