@@ -47,3 +47,20 @@ jobs:
       run: |
         docker build -t $DOCKER_REGISTRY/$APP_NAME .  
         docker push $DOCKER_REGISTRY/$APP_NAME
+  
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: SSH pipelines
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          sudo echo '"$DOCKER_PASSWORD"' | sudo docker login --username '"$DOCKER_USER_NAME"' --password-stdin;
+          sudo docker pull '"$DOCKER_REGISTRY"'/'"$APP_NAME"':'"$DOCKER_TAG"';
+          sudo docker run -d --name discord-bot legacy-discord-bot 
