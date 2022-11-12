@@ -45,14 +45,10 @@ jobs:
       uses: docker/setup-qemu-action@v2
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    - name: Build the Docker image
-      run: docker buildx build -t $DOCKER_REGISTRY/$APP_NAME --platform $DOCKER_PLATFORM .
     - name: Docker login
       run: echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USER_NAME --password-stdin
-    - name: Push image to registry
-      run: |
-        docker build -t $DOCKER_REGISTRY/$APP_NAME .  
-        docker push $DOCKER_REGISTRY/$APP_NAME
+    - name: Build the Docker image
+      run: docker buildx build -t $DOCKER_REGISTRY/$APP_NAME --platform $DOCKER_PLATFORM --push .
   
   deploy:
     needs: build
