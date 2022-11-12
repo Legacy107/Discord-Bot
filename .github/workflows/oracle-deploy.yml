@@ -19,6 +19,7 @@ env:
   DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
   DOCKER_USER_NAME: ${{secrets.DOCKER_USER_NAME}}
   DOCKER_TAG: latest
+  DOCKER_PLATFORM: ${{secrets.DOCKER_PLATFORM}}
 
 jobs:
 
@@ -41,7 +42,7 @@ jobs:
         echo "BETA=$BETA" >> .env
         echo "WORDNIK_API_KEY=$WORDNIK_API_KEY" >> .env
     - name: Build the Docker image
-      run: docker build -t $DOCKER_REGISTRY/$APP_NAME .
+      run: docker buildx build -t $DOCKER_REGISTRY/$APP_NAME --platform $DOCKER_PLATFORM .
     - name: Docker login
       run: echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USER_NAME --password-stdin
     - name: Push image to registry
