@@ -1,3 +1,4 @@
+from dotenv import load_dotenv, find_dotenv
 import inspect
 import os
 import re
@@ -6,15 +7,21 @@ import sys
 import discord
 from discord.ext import commands
 from PyDictionary import PyDictionary
-from random_word import RandomWords
+from random_word import RandomWords, Wordnik
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 from globalvar.global_var import emoji
 
+# Load config from env
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+WORDNIK_API_KEY = os.getenv('WORDNIK_API_KEY')
+
 English_dictionary = PyDictionary()
-random_word = RandomWords()
+random_word = Wordnik(api_key=WORDNIK_API_KEY)
 RE_invalid_word = re.compile('\d|\'')	# contains digits or symbols except for hyphen
 
 
