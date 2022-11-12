@@ -41,6 +41,10 @@ jobs:
         echo "SPOTIFY_SECRET=$SPOTIFY_SECRET" >> .env
         echo "BETA=$BETA" >> .env
         echo "WORDNIK_API_KEY=$WORDNIK_API_KEY" >> .env
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
     - name: Build the Docker image
       run: docker buildx build -t $DOCKER_REGISTRY/$APP_NAME --platform $DOCKER_PLATFORM .
     - name: Docker login
