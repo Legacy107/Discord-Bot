@@ -170,10 +170,10 @@ class Voice(commands.Cog):
 	# @song.command(name='play', help='Play a random song. Syntax: >song play <music bot\'s prefix> <option (required)>')
 	# async def _play_song(self, ctx, prefix, *, arg):
 	# 	option = arg
-		
+
 	# 	if not self.spotify.validate_option(option):
 	# 		return await ctx.send('Invalid option')
-		
+
 	# 	track = self.get_track(option)
 
 	# 	await self._join(ctx)

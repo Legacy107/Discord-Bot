@@ -3,7 +3,7 @@ from dotenv import load_dotenv, find_dotenv
 import os
 
 import discord
-from discord.ext import tasks, commands
+from discord.ext import commands
 
 from globalvar.global_var import set_up as data_set_up
 data_set_up()
@@ -37,7 +37,6 @@ async def on_ready():
 
 # -------------------MAIN-------------------------#
 async def main():
-	global bot
 	async with bot:
 		for filename in os.listdir(os.path.join('.', 'Cogs')):
 			if filename.endswith('.py'):

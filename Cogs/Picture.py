@@ -2,7 +2,6 @@ import aiohttp
 import io
 import os
 from PIL import Image, ImageDraw, ImageFont
-import shelve
 import sys
 
 import discord
@@ -12,7 +11,7 @@ import textwrap
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-from globalvar.global_var import image_dir, data_dir, font_dir, max_height
+from globalvar.global_var import image_dir, font_dir, max_height
 from utils.database import PicDatabase
 
 
