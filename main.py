@@ -1,3 +1,4 @@
+import asyncio
 from dotenv import load_dotenv, find_dotenv
 import os
 
@@ -16,7 +17,9 @@ ARCHIVE_CHANNEL = int(os.getenv('DISCORD_ARCHIVE_CHANNEL'))
 GUILD = os.getenv('DISCORD_GUILD')
 BETA = os.getenv('BETA')
 BETA_TOKEN = os.getenv('DISCORD_BETA_TOKEN')
-bot = commands.Bot(command_prefix='>')
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='>', intents=intents)
 
 
 @bot.event
@@ -33,12 +36,17 @@ async def on_ready():
 
 
 # -------------------MAIN-------------------------#
-if __name__ == '__main__':
-	for filename in os.listdir(os.path.join('.', 'Cogs')):
-		if filename.endswith('.py'):
-			bot.load_extension('Cogs.%s' % filename[:-3])
+async def main():
+	global bot
+	async with bot:
+		for filename in os.listdir(os.path.join('.', 'Cogs')):
+			if filename.endswith('.py'):
+				await bot.load_extension('Cogs.%s' % filename[:-3])
 
-	if BETA == '1':
-		bot.run(BETA_TOKEN)
-	else:
-		bot.run(TOKEN)
+		if BETA == '1':
+			await bot.start(BETA_TOKEN)
+		else:
+			await bot.start(TOKEN)
+
+if __name__ == '__main__':
+	asyncio.run(main())

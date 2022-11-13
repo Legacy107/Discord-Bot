@@ -1,11 +1,11 @@
 futures<3.0.0
-asyncpg==0.22.0
-discord.py==1.7.1
+asyncpg==0.27.0
+discord.py==2.1.0
 ffmpeg
 gTTS==2.2.3
 Pillow
-PyDictionary
-random-word
+PyDictionary==2.0.1
+random-word==1.0.11
 psycopg2-binary==2.9.5
 python-dotenv
 PyNaCl

@@ -135,5 +135,5 @@ class Picture(commands.Cog):
 		image.save('%stmp%s' % (image_dir, image_name))
 		await ctx.send(file=discord.File('%stmp%s' % (image_dir, image_name)))
 
-def setup(bot):
-	bot.add_cog(Picture(bot))
+async def setup(bot):
+	await bot.add_cog(Picture(bot))

@@ -242,8 +242,8 @@ class Voice(commands.Cog):
 			raise commands.CommandError("Bot is playing")
 
 
-def setup(bot):
-	bot.add_cog(Voice(bot))
+async def setup(bot):
+	await bot.add_cog(Voice(bot))
 
 
 if __name__ == "__main__":

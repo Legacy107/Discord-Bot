@@ -363,5 +363,5 @@ class Ludo(commands.Cog):
 		await ctx.send(file=file, embed=embed)
 
 
-def setup(bot):
-	bot.add_cog(Ludo(bot))
+async def setup(bot):
+	await bot.add_cog(Ludo(bot))
