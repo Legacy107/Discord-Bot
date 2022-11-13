@@ -40,7 +40,7 @@ async def main():
 	async with bot:
 		for filename in os.listdir(os.path.join('.', 'Cogs')):
 			if filename.endswith('.py'):
-				await bot.load_extension('Cogs.%s' % filename[:-3])
+				await bot.load_extension(f'Cogs.{filename[:-3]}')
 
 		if BETA == '1':
 			await bot.start(BETA_TOKEN)

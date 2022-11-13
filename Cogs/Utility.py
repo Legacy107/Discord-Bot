@@ -10,19 +10,19 @@ class Utility(commands.Cog):
 
 	@commands.command(name='ping', help='Ping the bot')
 	async def _ping(self, ctx):
-	    await ctx.send('pong')
+		await ctx.send('pong')
 
 	@commands.command(name='load', help='Load an extension')
 	@commands.is_owner()
 	async def _load(self, ctx, extension: str):
-		await self.bot.load_extension('Cogs.%s' % extension.capitalize())
-		await ctx.send('Successfully loaded %s extension' % extension)
+		await self.bot.load_extension(f'Cogs.{extension.capitalize()}')
+		await ctx.send(f'Successfully loaded {extension} extension')
 
 	@commands.command(name='unload', help='Unload an extension')
 	@commands.is_owner()
 	async def _unload(self, ctx, extension: str):
-		await self.bot.unload_extension('Cogs.%s' % extension.capitalize())
-		await ctx.send('Successfully unloaded %s extension' % extension)
+		await self.bot.unload_extension(f'Cogs.{extension.capitalize()}')
+		await ctx.send(f'Successfully unloaded {extension} extension')
 
 
 async def setup(bot):

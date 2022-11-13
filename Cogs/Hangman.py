@@ -27,7 +27,7 @@ RE_invalid_word = re.compile('\d|\'')	# contains digits or symbols except for hy
 
 def gen_rand_word():
 	try:
-		word = random_word.get_random_word(hasDictionaryDef="true", minCorpusCount=1000, minLength=4).lower()
+		word = random_word.get_random_word(hasDictionaryDef='true', minCorpusCount=1000, minLength=4).lower()
 		if RE_invalid_word.search(word):
 			print('Word contains digits or symbols')
 			return gen_rand_word()
@@ -65,7 +65,7 @@ class Hangman_Game:
 		self.meaning = [f'**Meaning of \"{self.word}\":**', '']
 		for word_type, mean in meaning.items():
 			partial_mean = mean[0]
-			self.meaning[1] += '**⠂%s:** %s\n' % (word_type, partial_mean)
+			self.meaning[1] += f'**⠂{word_type}:** {partial_mean}\n'
 
 		self.guess_cnt = 0
 		self.max_guess = 6
@@ -130,10 +130,12 @@ class Hangman_Game:
 			temp = 'es'
 		else:
 			temp = ''
-		embed.set_footer(text='Number of incorrect guess%s: %d/%d' % (temp, self.guess_cnt, self.max_guess))
+		embed.set_footer(text=f'Number of incorrect guess{temp}: {self.guess_cnt}/{self.max_guess}')
 		embed.add_field(name='========================', value=self.state[self.guess_cnt], inline=False)
-		embed.add_field(name='The word has %d letters' % self.word_length, value=self.guessed_word.replace('_', '\\_ '),
-						inline=False)
+		embed.add_field(
+			name=f'The word has {self.word_length} letters', value=self.guessed_word.replace('_', '\\_ '),
+			inline=False
+		)
 		return embed
 
 	def show_win(self):
@@ -141,22 +143,25 @@ class Hangman_Game:
 			temp = 'es'
 		else:
 			temp = ''
-		embed = discord.Embed(title='%s You won %s' % (emoji['clap'], emoji['clap']),
-							  description='You won with %d incorrect guess%s' % (self.guess_cnt, temp),
-							  color=discord.Color.green())
+		embed = discord.Embed(
+			title=f'{emoji["clap"]} You won {emoji["clap"]}',
+			description=f'You won with {self.guess_cnt} incorrect guess{temp}',
+			color=discord.Color.green()
+		)
 		embed.set_author(name='Hang the man Game', icon_url=self.thumbnail)
 		embed.add_field(name=self.meaning[0], value=self.meaning[1], inline=False)
 		return embed
 
 	def show_lose(self):
-		embed = discord.Embed(title='%s You lost %s' % (emoji['tongue'], emoji['tongue']),
-							  description='Hang is dead cuz you\'re *retarded* %s\n%s' % (
-								  emoji['lol'], self.state[self.guess_cnt]),
-							  color=discord.Color.red())
+		embed = discord.Embed(
+			title=f'{emoji["tongue"]} You lost {emoji["tongue"]}',
+			description=f'Hang is dead cuz you\'re *retarded* {emoji["lol"]}\n{self.state[self.guess_cnt]}',
+			color=discord.Color.red()
+		)
 		embed.set_author(name='Hang the man Game', icon_url=self.thumbnail)
 		embed.add_field(
-			name='The word is **%s**' % self.word,
-			value='%s\n%s' % (self.meaning[0], self.meaning[1]),
+			name=f'The word is **{self.word}**',
+			value=f'{self.meaning[0]}\n{self.meaning[1]}',
 			inline=False
 		)
 		return embed
@@ -165,7 +170,7 @@ class Hangman_Game:
 def hm_spam_protection(func):
 	async def decorator(self, ctx, *args, **kwargs):
 		if self.Client.is_processing:
-			return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
+			return await ctx.send(f'dmm spam spam cl {emoji["oo"]}')
 		self.Client.is_processing = True
 		await func(self, ctx, *args, **kwargs)
 		self.Client.is_processing = False
@@ -192,7 +197,7 @@ class Hangman(commands.Cog):
 
 			# --------------- >hm guess -----------------------
 			if not self.Client.status:
-				return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
+				return await ctx.send(f'There is no game to play, pls start a game first {emoji["oo"]}')
 			result = self.Client.guess(arg)
 			if result == -1:
 				return await ctx.send('Invalid guess')
@@ -221,7 +226,7 @@ class Hangman(commands.Cog):
 		if not self.Client.status:
 			self.Client.status = True
 			return await ctx.send(embed=self.Client.show())
-		return await ctx.send('You can only play 1 game at a time %s' % emoji['oo'])
+		return await ctx.send(f'You can only play 1 game at a time {emoji["oo"]}')
 
 
 	@hm.command(name='end', help='End the current game', aliases=['abort', 'fs', 'off'])
@@ -235,7 +240,7 @@ class Hangman(commands.Cog):
 	@hm.command(name='current', help='Show the current game', aliases=['cr', 'np', 'cs'])
 	async def _current(self, ctx):
 		if not self.Client.status:
-			return await ctx.send('There is no game to play, pls start a game first %s' % emoji['oo'])
+			return await ctx.send(f'There is no game to play, pls start a game first {emoji["oo"]}')
 		embed = self.Client.show()
 		return await ctx.send(embed=embed)
 

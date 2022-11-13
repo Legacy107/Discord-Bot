@@ -103,11 +103,11 @@ class Voice(commands.Cog):
 		if not ctx.voice_client:
 			return await ctx.send('The bot hasn\'t connected to a voice channel')
 		name += '.mp3'
-		audio_file = '%s%s' % (self.audio_dir, name)
+		audio_file = f'{self.audio_dir}{name}'
 		if os.path.exists(audio_file):
 			source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=audio_file))
-			ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
-			await ctx.send('Playing %s' % name)
+			ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
+			await ctx.send(f'Playing {name}')
 		else:
 			await ctx.send('File not found')
 
@@ -117,7 +117,7 @@ class Voice(commands.Cog):
 		if ctx.voice_client is None:
 			return await ctx.send('The bot hasn\'t connected to a voice channel')
 		ctx.voice_client.source.volume = volume / 100
-		await ctx.send("Changed volume to %d" % volume)
+		await ctx.send(f'Changed volume to {volume}')
 
 
 	@commands.command(name='stop', help='Stop playing audio')
@@ -160,10 +160,10 @@ class Voice(commands.Cog):
 		track = self.get_track(option)
 
 		music_note = emoji['music']
-		embed = discord.Embed(title='%s %s %s' % (music_note, track['name'], music_note), description=track['artist'], url=track['track_url'], color=discord.Color.teal())
+		embed = discord.Embed(title=f'{music_note} {track["name"]} {music_note}', description=track['artist'], url=track['track_url'], color=discord.Color.teal())
 		embed.set_thumbnail(url=track['image_url'])
 		if track['album'] != 'single':
-			embed.set_footer(text='from album: %s' % track['album'])
+			embed.set_footer(text=f'from album: {track["album"]}')
 		await ctx.send(embed=embed)
 
 
@@ -215,7 +215,7 @@ class Voice(commands.Cog):
 		gTTS(arg, lang=option).save(tts_dir)
 
 		source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(source=tts_dir))
-		ctx.voice_client.play(source, after=lambda e: print('Player error: %s' % e) if e else None)
+		ctx.voice_client.play(source, after=lambda e: print(f'Player error: {e}') if e else None)
 
 
 	@commands.command(name='langs', help='Show all supported tts languages', aliases=['lang'])
@@ -235,18 +235,18 @@ class Voice(commands.Cog):
 			if ctx.author.voice:
 				await ctx.author.voice.channel.connect()
 			else:
-				await ctx.send("You are not connected to a voice channel")
-				raise commands.CommandError("Author not connected to a voice channel")
+				await ctx.send('You are not connected to a voice channel')
+				raise commands.CommandError('Author not connected to a voice channel')
 		elif ctx.voice_client.is_playing():
-			await ctx.send("The bot is playing. Use >hm stop to force stop")
-			raise commands.CommandError("Bot is playing")
+			await ctx.send('The bot is playing. Use >hm stop to force stop')
+			raise commands.CommandError('Bot is playing')
 
 
 async def setup(bot):
 	await bot.add_cog(Voice(bot))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	# Testing
 	spotify = Spotify()
 	spotify.get_playlist_tracks('acoustic')

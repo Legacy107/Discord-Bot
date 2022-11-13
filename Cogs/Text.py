@@ -27,12 +27,12 @@ class Text(commands.Cog):
 	@commands.command(name='wipe', help='Wipe all message data')
 	@commands.is_owner()
 	async def _wipe_msg_data(self, ctx):
-	    os.remove(data_dir + '.dat')
-	    os.remove(data_dir + '.bak')
-	    os.remove(data_dir + '.dir')
-	    file = shelve.open(data_dir, flag='n')
-	    file.close()
-	    await ctx.send('Successfully wiped out message data')
+		os.remove(data_dir + '.dat')
+		os.remove(data_dir + '.bak')
+		os.remove(data_dir + '.dir')
+		file = shelve.open(data_dir, flag='n')
+		file.close()
+		await ctx.send('Successfully wiped out message data')
 
 	def save_msg_history(self, author, content):
 		file = shelve.open(data_dir)
@@ -67,7 +67,7 @@ class Text(commands.Cog):
 	@commands.command(name='list', help='Show message history. Syntax: >list <number of msg>')
 	async def _list(self, ctx, num_msg: int):
 		if num_msg > 30:
-			await ctx.send('dmm\nlim 30 ok %s' % emoji['oo'])
+			await ctx.send(f'dmm\nlim 30 ok {emoji["oo"]}')
 			return
 		temp = ''
 		for author, msg in self.history[-num_msg - 1:-1]:  # -1: exclude >list
@@ -77,7 +77,7 @@ class Text(commands.Cog):
 	@commands.command(name='listdel', help='Show deleted message. Syntax: >listdel <number of msg>')
 	async def _listdel(self, ctx, num_msg: int):
 		if num_msg > 30:
-			await ctx.send('dmm\nlim 30 ok %s' % emoji['oo'])
+			await ctx.send(f'dmm\nlim 30 ok {emoji["oo"]}')
 			return
 		temp = ''
 		for author, msg in self.deleted_msg[-num_msg:]:
@@ -94,12 +94,12 @@ class Text(commands.Cog):
 
 		embed = discord.Embed(
 			title=f'{exploding_head} AMAZING FACT!!! {exploding_head}',
-			description='=================================\n**' + fact['content'] + '**',
+			description=f'=================================\n**{fact["content"]}**',
 			url=fact['url'],
 			color=discord.Color.dark_blue()
 		)
 		embed.set_thumbnail(url=fact['image_url'])
-		embed.set_footer(text='Fact: mentalfloss.com\tImage: %s' % fact['image_credit'])
+		embed.set_footer(text=f'Fact: mentalfloss.com\tImage: {fact["image_credit"]}')
 		await ctx.send(embed=embed)
 
 
