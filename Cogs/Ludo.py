@@ -135,7 +135,7 @@ class Ludo_Game:
 	def show(self):
 		self.prepare_image()
 		embed = discord.Embed(title=self.log, color=discord.Color.blurple())
-		embed.description = 'It\'s **%s\'s** turn. Pls `>ld roll` the dice' % self.players[self.turn].name
+		embed.description = f'It\'s **{self.players[self.turn].name}\'s** turn. Pls `>ld roll` the dice'
 		embed.set_author(name='Ludo Game', icon_url=self.thumbnail)
 		file = discord.File(self.temp_image, filename="ludo_tmp.jpg")
 		embed.set_image(url="attachment://ludo_tmp.jpg")
@@ -143,7 +143,7 @@ class Ludo_Game:
 
 	def show_win(self):
 		embed = discord.Embed(
-			title='**%s %s won the game %s' % (emoji['clap'], self.players[self.turn].name, emoji['clap']),
+			title=f'**{emoji["clap"]} {self.players[self.turn].name} won the game {emoji["clap"]}',
 			color=discord.Color.green())
 		embed.set_author(name='Ludo Game', icon_url=self.thumbnail)
 		embed.set_image(url=self.winning_image)
@@ -161,7 +161,7 @@ class Ludo_Game:
 
 	def verify(self, name):
 		if self.is_processing:
-			return 'dmm spam spam cl %s' % emoji['oo']
+			return f'dmm spam spam cl {emoji["oo"]}'
 		if not self.status:
 			return 'Please start a game first'
 		if name != self.players[self.turn].name:
@@ -251,7 +251,7 @@ class Ludo(commands.Cog):
 	@ld.command(name='start', help='Start a new game')
 	async def _start(self, ctx):
 		if self.Client.is_processing:
-			return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
+			return await ctx.send(f'dmm spam spam cl {emoji["oo"]}')
 		self.Client.is_processing = True
 		if not self.self.Client.status:
 			mention = ctx.message.mentions
@@ -263,14 +263,14 @@ class Ludo(commands.Cog):
 			file, embed = self.Client.show()
 			await ctx.send(file=file, embed=embed)
 		else:
-			await ctx.send('You can only play 1 game at a time %s' % emoji['oo'])
+			await ctx.send(f'You can only play 1 game at a time {emoji["oo"]}')
 		self.Client.is_processing = False
 
 
 	@ld.command(name='end', help='End current game')
 	async def _end(self, ctx):
 		if self.Client.is_processing:
-			return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
+			return await ctx.send(f'dmm spam spam cl {emoji["oo"]}')
 		self.Client.is_processing = True
 		if self.Client.status:
 			self.Client.status = False
@@ -283,7 +283,7 @@ class Ludo(commands.Cog):
 	@ld.command(name='current', hlep='Show current game')
 	async def _current(self, ctx):
 		if self.Client.is_processing:
-			return await ctx.send('dmm spam spam cl %s' % emoji['oo'])
+			return await ctx.send(f'dmm spam spam cl {emoji["oo"]}')
 		self.Client.is_processing = True
 		file, embed = self.Client.show()
 		await ctx.send(file=file, embed=embed)
@@ -300,15 +300,11 @@ class Ludo(commands.Cog):
 		self.Client.rolled = True
 		dice = [randint(1, 6), randint(1, 6)]
 		self.Client.dice = dice
-		await ctx.send('**%s** rolls the dice %s %s' % (
-			ctx.message.author.name,
-			emoji['dice%s' % dice[0]],
-			emoji['dice%s' % dice[1]]
-		))
+		await ctx.send(f'**{ctx.message.author.name}** rolls the dice {emoji["dice" + dice[0]]} {emoji["dice" + dice[1]]}')
 		if not self.Client.has_valid_move():
 			self.Client.next_turn()
 			self.Client.rolled = False
-			await ctx.send('Skipped %s\'s turn' % ctx.message.author.name)
+			await ctx.send(f'Skipped {ctx.message.author.name}\'s turn')
 			file, embed = self.Client.show()
 			await ctx.send(file=file, embed=embed)
 		self.Client.is_processing = False
@@ -358,10 +354,10 @@ class Ludo(commands.Cog):
 			return await ctx.send(msg)
 		self.Client.next_turn()
 		self.Client.rolled = False
-		await ctx.send('Skipped %s\'s turn' % ctx.message.author.name)
+		await ctx.send(f'Skipped {ctx.message.author.name}\'s turn')
 		file, embed = self.Client.show()
 		await ctx.send(file=file, embed=embed)
 
 
-def setup(bot):
-	bot.add_cog(Ludo(bot))
+async def setup(bot):
+	await bot.add_cog(Ludo(bot))

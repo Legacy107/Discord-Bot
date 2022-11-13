@@ -2,7 +2,6 @@ import aiohttp
 import io
 import os
 from PIL import Image, ImageDraw, ImageFont
-import shelve
 import sys
 
 import discord
@@ -12,7 +11,7 @@ import textwrap
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
-from globalvar.global_var import image_dir, data_dir, font_dir, max_height
+from globalvar.global_var import image_dir, font_dir, max_height
 from utils.database import PicDatabase
 
 
@@ -25,10 +24,11 @@ class Picture(commands.Cog):
 
 	@staticmethod
 	def resize(image_name):
-		image = Image.open('%s%s' % (image_dir, image_name))
+		file_path = f'{image_dir}{image_name}'
+		image = Image.open(file_path)
 		width = int(float(image.size[0]) * (max_height / float(image.size[1])))
 		image = image.resize((width, max_height), Image.ANTIALIAS)
-		image.save('%s%s' % (image_dir, image_name))
+		image.save(file_path)
 		image.close()
 
 	@commands.command(name='savepic', help='Save attached image. Syntax: >savepic <name> + <image>')
@@ -47,15 +47,16 @@ class Picture(commands.Cog):
 		extension = attachment[0].url.split('.')[-1]
 		image_name = '.'.join((name, extension))
 
-		await attachment[0].save('%s%s' % (image_dir, image_name), seek_begin=True, use_cached=False)
+		file_path = f'{image_dir}{image_name}'
+		await attachment[0].save(file_path, seek_begin=True, use_cached=False)
 		if attachment[0].height > max_height:
 			self.resize(image_name)
-		res = await self.archive_channel.send(file=discord.File('%s%s' % (image_dir, image_name)))
+		res = await self.archive_channel.send(file=discord.File(file_path))
 		pic_url = res.attachments[0].url
 
 		await self.db_client.add_pic(name, pic_url, full_name)
 
-		await ctx.send('Successfully saved image as %s' % image_name)
+		await ctx.send(f'Successfully saved image as {image_name}')
 
 
 	@commands.command(name='delpic', help='Delete a pic saved with >savepic. Syntax: >delpic <name>')
@@ -66,7 +67,7 @@ class Picture(commands.Cog):
 
 		await self.db_client.delete_pic(name)
 
-		await ctx.send('Successfully removed pic %s' % name)
+		await ctx.send(f'Successfully removed pic {name}')
 
 
 	@commands.command(name='listpic', help='List all pics. Syntax: >listpic')
@@ -98,7 +99,7 @@ class Picture(commands.Cog):
 				if res.status != 200:
 					return await ctx.send('Network error. Pls try again.')
 				data = io.BytesIO(await res.read())
-				await ctx.send(content='**%s said**' % ctx.message.author.name, file=discord.File(data, file_name))
+				await ctx.send(content=f'**{ctx.message.author.name} said**', file=discord.File(data, file_name))
 
 
 	@commands.command(name='hhh', help=u'Huấn Rô Sì')
@@ -112,7 +113,7 @@ class Picture(commands.Cog):
 		max_letters = 23
 		color = 'black'
 
-		image = Image.open('%s%s' % (image_dir, image_name))
+		image = Image.open(f'{image_dir}{image_name}')
 		image_width, image_height = image.size
 		draw = ImageDraw.Draw(image)
 
@@ -132,8 +133,9 @@ class Picture(commands.Cog):
 			draw.text(((image_width - width) / 2, current_height), line, font=font, fill=color)
 			current_height -= height
 
-		image.save('%stmp%s' % (image_dir, image_name))
-		await ctx.send(file=discord.File('%stmp%s' % (image_dir, image_name)))
+		file_path = f'{image_dir}tmp{image_name}'
+		image.save(file_path)
+		await ctx.send(file=discord.File(file_path))
 
-def setup(bot):
-	bot.add_cog(Picture(bot))
+async def setup(bot):
+	await bot.add_cog(Picture(bot))
