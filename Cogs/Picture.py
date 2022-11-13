@@ -133,7 +133,7 @@ class Picture(commands.Cog):
 			draw.text(((image_width - width) / 2, current_height), line, font=font, fill=color)
 			current_height -= height
 
-		file_path = f'{image_dir}tmp{image_name}' 
+		file_path = f'{image_dir}tmp{image_name}'
 		image.save(file_path)
 		await ctx.send(file=discord.File(file_path))
 
