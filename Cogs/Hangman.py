@@ -3,11 +3,12 @@ import inspect
 import os
 import re
 import sys
+from functools import wraps
 
 import discord
 from discord.ext import commands
 from PyDictionary import PyDictionary
-from random_word import RandomWords, Wordnik
+from random_word import Wordnik
 
 currentdir = os.path.dirname(os.path.realpath(__file__))
 parentdir = os.path.dirname(currentdir)
@@ -168,15 +169,13 @@ class Hangman_Game:
 
 
 def hm_spam_protection(func):
+	@wraps(func)
 	async def decorator(self, ctx, *args, **kwargs):
 		if self.Client.is_processing:
 			return await ctx.send(f'dmm spam spam cl {emoji["oo"]}')
 		self.Client.is_processing = True
 		await func(self, ctx, *args, **kwargs)
 		self.Client.is_processing = False
-
-	decorator.__name__ = func.__name__
-	decorator.__signature__ = inspect.signature(func)
 	return decorator
 
 
