@@ -21,6 +21,8 @@ env:
   DOCKER_USER_NAME: ${{secrets.DOCKER_USER_NAME}}
   DOCKER_TAG: latest
   DOCKER_PLATFORM: ${{secrets.DOCKER_PLATFORM}}
+  POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+  POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
 
 jobs:
 
@@ -87,4 +89,4 @@ jobs:
           sudo docker rm $(sudo docker ps -l -a -q)
           sudo docker rmi $(sudo docker images -a -q) 
           sudo echo "$DOCKER_PASSWORD" | sudo docker login --username $DOCKER_USER_NAME --password-stdin
-          sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+          sudo docker compose -f docker-compose.prod.yml up -d
