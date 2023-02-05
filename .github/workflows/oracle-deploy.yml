@@ -75,7 +75,8 @@ jobs:
         envs: POSTGRES_USER,POSTGRES_PASSWORD,DOCKER_PLATFORM,DOCKER_PASSWORD,DOCKER_USER_NAME,DOCKER_REGISTRY,APP_NAME,DOCKER_TAG
         script: |
           cd discord-bot
-          sudo touch .env
+          rm -f .env
+          touch .env
           echo "DOCKER_PLATFORM=$DOCKER_PLATFORM" >> .env
           echo "DOCKER_REGISTRY=$DOCKER_REGISTRY" >> .env
           echo "APP_NAME=$APP_NAME" >> .env
