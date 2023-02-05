@@ -1,6 +1,7 @@
 name: Docker Image CI
 
 on:
+  pull_request:
   push:
     branches: [ "master" ]
 
@@ -20,6 +21,8 @@ env:
   DOCKER_USER_NAME: ${{secrets.DOCKER_USER_NAME}}
   DOCKER_TAG: latest
   DOCKER_PLATFORM: ${{secrets.DOCKER_PLATFORM}}
+  POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+  POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
 
 jobs:
 
@@ -32,7 +35,6 @@ jobs:
     - name: Setup environment variables
       run: |
         touch .env
-        echo "DATABASE_URL=$DATABASE_URL" >> .env
         echo "DISCORD_TOKEN=$DISCORD_TOKEN" >> .env
         echo "DISCORD_GUILD=$DISCORD_GUILD" >> .env
         echo "DISCORD_ARCHIVE_CHANNEL=$DISCORD_ARCHIVE_CHANNEL" >> .env
@@ -56,6 +58,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: copy docker compose file via scp
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "docker-compose.yml,docker-compose.prod.yml"
+        target: "/home/opc/discord-bot"
     
     - name: SSH pipelines
       uses: appleboy/ssh-action@master
@@ -63,11 +74,19 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
-        envs: DOCKER_PASSWORD,DOCKER_USER_NAME,DOCKER_REGISTRY,APP_NAME,DOCKER_TAG
+        envs: POSTGRES_USER,POSTGRES_PASSWORD,DOCKER_PLATFORM,DOCKER_PASSWORD,DOCKER_USER_NAME,DOCKER_REGISTRY,APP_NAME,DOCKER_TAG
         script: |
+          cd discord-bot
+          rm -f .env
+          touch .env
+          echo "DOCKER_PLATFORM=$DOCKER_PLATFORM" >> .env
+          echo "DOCKER_REGISTRY=$DOCKER_REGISTRY" >> .env
+          echo "APP_NAME=$APP_NAME" >> .env
+          echo "DOCKER_TAG=$DOCKER_TAG" >> .env
+          echo "POSTGRES_USER=$POSTGRES_USER" >> .env
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
           sudo docker stop $(sudo docker ps -a -q)
-          sudo docker rm $(sudo docker ps -l -a -q)
+          sudo docker rm $(sudo docker ps -a -q)
           sudo docker rmi $(sudo docker images -a -q) 
           sudo echo "$DOCKER_PASSWORD" | sudo docker login --username $DOCKER_USER_NAME --password-stdin
-          sudo docker pull $DOCKER_REGISTRY/$APP_NAME:$DOCKER_TAG
-          sudo docker run -e PYTHONUNBUFFERED=1 -d --name $APP_NAME $DOCKER_REGISTRY/$APP_NAME:$DOCKER_TAG
+          sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d

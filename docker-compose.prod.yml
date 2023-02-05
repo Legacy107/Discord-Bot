@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  app:
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    image: ${DOCKER_REGISTRY}/${APP_NAME}:${DOCKER_TAG}
+    depends_on:
+      - postgresql
+    links:
+      - postgresql
+    environment:
+      PYTHONUNBUFFERED: 1
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgresql:5432/postgres
+
+volumes:
+  postgresql:
+    driver: local

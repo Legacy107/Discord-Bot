@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  postgresql:
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    image: postgres:15.1-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    restart: always
+    ports:
+      - 5001:5432
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+
+  adminer:
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    image: adminer
+    restart: always
+    ports:
+      - 5000:8080
+
+volumes:
+  postgresql:
+    driver: local
