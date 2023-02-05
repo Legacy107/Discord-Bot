@@ -1,5 +1,24 @@
 version: "3.9"
 services:
+  postgresql:
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    image: postgres:15.1-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+
+  adminer:
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
   app:
     platform: ${DOCKER_PLATFORM:-linux/amd64}
     image: ${DOCKER_REGISTRY}/${APP_NAME}:${DOCKER_TAG}
@@ -10,3 +29,7 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgresql:5432/postgres
+
+volumes:
+  postgresql:
+    driver: local
