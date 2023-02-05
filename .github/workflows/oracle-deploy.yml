@@ -86,7 +86,7 @@ jobs:
           echo "POSTGRES_USER=$POSTGRES_USER" >> .env
           echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
           sudo docker stop $(sudo docker ps -a -q)
-          sudo docker rm $(sudo docker ps -l -a -q)
+          sudo docker rm $(sudo docker ps -a -q)
           sudo docker rmi $(sudo docker images -a -q) 
           sudo echo "$DOCKER_PASSWORD" | sudo docker login --username $DOCKER_USER_NAME --password-stdin
           sudo docker compose -f docker-compose.prod.yml up -d
